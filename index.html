@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MK Drop Taxi | One-Way Drop Taxi Across Tamil Nadu</title>
+    <meta name="description" content="Book affordable one-way drop taxis across Tamil Nadu. Transparent per-km rates, GPS-tracked cabs, no waiting charges, and zero return fare!">
+    <meta name="keywords" content="Drop taxi Tamil Nadu, One way cab Chennai, Outstation taxi, MK Drop Taxi, One way drop taxi">
+
+    <!-- Leaflet CSS for OpenStreetMap & Routing -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        :root {
+            --primary-yellow: #FFC107;
+            --yellow-hover: #E0A800;
+            --dark-slate: #111827;
+            --card-dark: #1F2937;
+            --pure-white: #FFFFFF;
+            --light-bg: #F9FAFB;
+            --border-color: #E5E7EB;
+            --text-dark: #1F2937;
+            --text-muted: #6B7280;
+            --success-green: #10B981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: var(--dark-slate);
+            color: var(--pure-white);
+            padding: 0.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-bottom: 2px solid var(--primary-yellow);
+        }
+
+        .top-bar-left, .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .top-bar a {
+            color: var(--primary-yellow);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            background-color: var(--pure-white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 5%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .logo-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background-color: var(--primary-yellow);
+            color: var(--dark-slate);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.2rem;
+            border: 2px solid var(--dark-slate);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-brand {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--dark-slate);
+            line-height: 1;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-sub {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--yellow-hover);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--yellow-hover);
+        }
+
+        .btn-cta {
+            background-color: var(--primary-yellow);
+            color: var(--dark-slate);
+            padding: 0.6rem 1.4rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn-cta:hover {
+            background-color: var(--yellow-hover);
+            transform: translateY(-1px);
+        }
+
+        /* Page Routing Management */
+        .page-section {
+            display: none;
+            min-height: calc(100vh - 200px);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hero Banner */
+        .hero {
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.92), rgba(31, 41, 55, 0.88)), url('https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1500&q=80') center/cover;
+            color: var(--pure-white);
+            padding: 4rem 5%;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2.5rem;
+        }
+
+        .hero-text {
+            flex: 1 1 450px;
+        }
+
+        .hero-text h1 {
+            font-size: 2.8rem;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .hero-text h1 span {
+            color: var(--primary-yellow);
+        }
+
+        .hero-text p {
+            font-size: 1.1rem;
+            color: #D1D5DB;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-badges {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--primary-yellow);
+        }
+
+        .home-address-banner {
+            background: rgba(255, 193, 7, 0.15);
+            border-left: 4px solid var(--primary-yellow);
+            padding: 0.8rem 1rem;
+            border-radius: 0 6px 6px 0;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #F3F4F6;
+        }
+
+        /* Mini Booking Widget */
+        .booking-widget {
+            background: var(--pure-white);
+            color: var(--text-dark);
+            padding: 1.8rem;
+            border-radius: 12px;
+            flex: 1 1 380px;
+            max-width: 480px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border-top: 5px solid var(--primary-yellow);
+        }
+
+        .widget-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark-slate);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .trip-type-toggle {
+            display: flex;
+            background: var(--light-bg);
+            padding: 3px;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .trip-type-btn {
+            flex: 1;
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .trip-type-btn.active {
+            background: var(--dark-slate);
+            color: var(--primary-yellow);
+        }
+
+        .form-group {
+            margin-bottom: 0.9rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--dark-slate);
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.65rem 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--dark-slate);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Autocomplete Suggestions */
+        .suggestions-box {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--pure-white);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            z-index: 1000;
+            max-height: 180px;
+            overflow-y: auto;
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            border-bottom: 1px solid var(--light-bg);
+        }
+
+        .suggestion-item:hover {
+            background: var(--primary-yellow);
+            color: var(--dark-slate);
+            font-weight: 600;
+        }
+
+        /* Why Choose Us Section */
+        .section-padding {
+            padding: 4rem 5%;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title h2 {
+            font-size: 2rem;
+            color: var(--dark-slate);
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+
+        .section-title p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--pure-white);
+            padding: 1.8rem 1.2rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            border-color: var(--primary-yellow);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 193, 7, 0.15);
+            color: var(--dark-slate);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin: 0 auto 1rem auto;
+            font-weight: bold;
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark-slate);
+        }
+
+        .feature-card p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        /* Cab Types Section */
+        .cabs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .cab-card {
+            background: var(--pure-white);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .cab-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-yellow);
+        }
+
+        .cab-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark-slate);
+        }
+
+        .cab-rate {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--dark-slate);
+            margin: 0.8rem 0;
+        }
+
+        .cab-rate span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: normal;
+        }
+
+        .cab-details {
+            list-style: none;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 1.2rem;
+        }
+
+        .cab-details li {
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Popular Routes Grid */
+        .routes-grid-home {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .route-card-home {
+            background: var(--pure-white);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .route-card-home:hover {
+            border-color: var(--dark-slate);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .route-info h4 {
+            font-size: 1rem;
+            color: var(--dark-slate);
+        }
+
+        .route-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Container Layout for Pages */
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 2.5rem auto;
+        }
+
+        /* Master Routes Page Styles */
+        .routes-filter-box {
+            background: var(--pure-white);
+            padding: 1.2rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .routes-filter-box input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.7rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            outline: none;
+        }
+
+        .origin-group-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark-slate);
+            margin: 2rem 0 1rem 0;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid var(--primary-yellow);
+        }
+
+        .origin-routes-flex {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 0.8rem;
+        }
+
+        .route-pill {
+            background: var(--pure-white);
+            padding: 0.7rem 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--dark-slate);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .route-pill:hover {
+            background: var(--primary-yellow);
+            border-color: var(--dark-slate);
+        }
+
+        /* Route Detail View */
+        .route-detail-view {
+            background: var(--pure-white);
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .route-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .route-fare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .route-fare-table th, .route-fare-table td {
+            padding: 0.8rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .route-fare-table th {
+            background: var(--light-bg);
+            color: var(--dark-slate);
+        }
+
+        /* Embedded Map & Calculator Box */
+        .booking-calculator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 850px) {
+            .booking-calculator-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        #map {
+            height: 380px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            z-index: 1;
+        }
+
+        .fare-estimate-box {
+            background: var(--dark-slate);
+            color: var(--pure-white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .fare-estimate-box h4 {
+            color: var(--primary-yellow);
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .fare-breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.88rem;
+            margin-bottom: 0.4rem;
+            color: #D1D5DB;
+        }
+
+        .fare-total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary-yellow);
+            border-top: 1px solid rgba(255,255,255,0.15);
+            padding-top: 0.6rem;
+            margin-top: 0.6rem;
+        }
+
+        /* Confirmation Screen */
+        .confirmation-card {
+            background: var(--pure-white);
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 2px solid var(--success-green);
+            text-align: center;
+            max-width: 600px;
+            margin: 2rem auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        .confirmation-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1rem auto;
+        }
+
+        /* Legal Content Typography */
+        .legal-content h3 {
+            margin: 1.5rem 0 0.5rem 0;
+            color: var(--dark-slate);
+        }
+
+        .legal-content p, .legal-content ul {
+            font-size: 0.92rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .legal-content ul {
+            padding-left: 1.5rem;
+        }
+
+        /* Contact Section Grid */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark-slate);
+            color: var(--pure-white);
+            padding: 3rem 5% 1.5rem 5%;
+            margin-top: 4rem;
+            border-top: 4px solid var(--primary-yellow);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-col h4 {
+            color: var(--primary-yellow);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-col ul li a {
+            color: #9CA3AF;
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--primary-yellow);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.82rem;
+            color: #9CA3AF;
+        }
+
+        /* Alerts & Helpers */
+        .alert-box {
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-info {
+            background-color: #E0F2FE;
+            color: #0369A1;
+            border: 1px solid #BAE6FD;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 12px;
+            }
+            .top-bar {
+                justify-content: center;
+                text-align: center;
+            }
+            .hero-text h1 {
+                font-size: 2.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Contact Strip -->
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <span>📞 Call 24/7: <a href="tel:+916379915890">+91 63799 15890</a></span>
+            <span>💬 WhatsApp: <a href="https://wa.me/916379915890" target="_blank">+91 63799 15890</a></span>
+            <span>✉️ Email: <a href="mailto:bookings.mkdroptaxi@gmail.com">bookings.mkdroptaxi@gmail.com</a></span>
+        </div>
+        <div class="top-bar-right">
+            <span>📍 HQ: Pochampalli, Krishnagiri</span>
+        </div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <nav class="navbar">
+        <a class="logo" onclick="navigateTo('home')">
+            <div class="logo-circle">MK</div>
+            <div class="logo-text">
+                <span class="logo-brand">MK DROP TAXI</span>
+                <span class="logo-sub">ONE-WAY CABS</span>
+            </div>
+        </a>
+        <ul class="nav-links">
+            <li><a id="nav-home" class="active" onclick="navigateTo('home')">Home</a></li>
+            <li><a id="nav-routes" onclick="navigateTo('routes')">Routes</a></li>
+            <li><a id="nav-booking" onclick="navigateTo('booking')">Book Now</a></li>
+            <li><a id="nav-about" onclick="navigateTo('about')">About Us</a></li>
+            <li><a id="nav-contact" onclick="navigateTo('contact')">Contact</a></li>
+        </ul>
+        <button class="btn-cta" onclick="navigateTo('booking')">Book Taxi</button>
+    </nav>
+
+    <!-- PAGE 1: HOME -->
+    <section id="page-home" class="page-section active">
+        <div class="hero">
+            <div class="hero-text">
+                <h1>One-Way Drop Taxi Across <span>Tamil Nadu</span></h1>
+                <p>Pay purely for the distance you travel. Premium, GPS-tracked one-way outstation taxi service connecting Krishnagiri, Chennai, Coimbatore, Madurai, Salem, and 100+ cities.</p>
+                <div class="hero-badges">
+                    <span class="badge">✓ Zero Waiting Charges</span>
+                    <span class="badge">✓ Transparent Per-KM Fare</span>
+                    <span class="badge">✓ Verified Drivers</span>
+                </div>
+
+                <!-- Office Address Display on Home Page Hero -->
+                <div class="home-address-banner">
+                    📍 <strong>Main Office:</strong> MK Drop Taxi, Pochampalli, Krishnagiri, Tamil Nadu<br>
+                    📞 <strong>Direct Call / WhatsApp:</strong> +91 63799 15890 | ✉️ <strong>Email:</strong> bookings.mkdroptaxi@gmail.com
+                </div>
+            </div>
+            
+            <!-- Mini Booking Widget -->
+            <div class="booking-widget">
+                <div class="widget-title">
+                    <span>Quick Fare Estimate</span>
+                    <span style="font-size: 0.75rem; color: var(--yellow-hover); background: var(--light-bg); padding: 2px 6px; border-radius: 4px;">OSM Powered</span>
+                </div>
+                <form onsubmit="handleQuickWidgetSubmit(event)">
+                    <div class="form-group">
+                        <label>Pickup Location</label>
+                        <input type="text" id="widget-pickup" placeholder="e.g. Pochampalli, Krishnagiri, Chennai" autocomplete="off" oninput="debounceNominatim(this.value, 'widget-pickup-sug', 'pickup')">
+                        <div id="widget-pickup-sug" class="suggestions-box"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Drop Location</label>
+                        <input type="text" id="widget-drop" placeholder="e.g. Bangalore, Madurai, Salem" autocomplete="off" oninput="debounceNominatim(this.value, 'widget-drop-sug', 'drop')">
+                        <div id="widget-drop-sug" class="suggestions-box"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="widget-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Cab Type</label>
+                            <select id="widget-cab">
+                                <option value="Sedan">Sedan (₹14/km)</option>
+                                <option value="SUV">SUV (₹19/km)</option>
+                                <option value="Innova">Innova/Ertiga (₹21/km)</option>
+                                <option value="Tempo">Tempo Traveller (₹30/km)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-cta" style="width: 100%; margin-top: 0.5rem;">Calculate Distance & Book ➔</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Why Choose Us -->
+        <div class="section-padding">
+            <div class="section-title">
+                <h2>Why Choose MK Drop Taxi?</h2>
+                <p>The smartest and most transparent way to travel outstation in Tamil Nadu</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⏱️</div>
+                    <h3>No Waiting Charges</h3>
+                    <p>We don't penalize you for minor delays during pickup or quick bio-breaks on highways.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛰️</div>
+                    <h3>GPS-Tracked Route</h3>
+                    <p>All vehicles are live-tracked via satellite GPS for ultimate passenger safety and route accuracy.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💵</div>
+                    <h3>Transparent Per-KM Fare</h3>
+                    <p>Exact fare calculation based on OSRM driving distance. Driver allowance clearly itemized.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚕</div>
+                    <h3>True One-Way Drop</h3>
+                    <p>Never pay return vehicle charges when you travel one-way. Pay strictly for your traveled leg.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🗺️</div>
+                    <h3>All Tamil Nadu Cities</h3>
+                    <p>Complete coverage across all 38 districts of Tamil Nadu plus key inter-state hubs like Bangalore.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Popular Routes Section -->
+        <div class="section-padding" style="background: var(--pure-white);">
+            <div class="section-title">
+                <h2>Popular Drop Taxi Routes</h2>
+                <p>Click any popular route to view estimated fares and pre-fill your booking</p>
+            </div>
+            <div class="routes-grid-home" id="home-popular-routes">
+                <!-- Dynamically populated from JS -->
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <button class="btn-cta" onclick="navigateTo('routes')">View All 100+ Tamil Nadu Routes ➔</button>
+            </div>
+        </div>
+
+        <!-- Cab Types Section -->
+        <div class="section-padding">
+            <div class="section-title">
+                <h2>Our Fleet & Per-KM Rates</h2>
+                <p>Well-maintained, clean, air-conditioned cabs for all group sizes</p>
+            </div>
+            <div class="cabs-grid">
+                <div class="cab-card">
+                    <div>
+                        <div class="cab-name">Sedan</div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Dzire, Etios, Xcent or equivalent</p>
+                        <div class="cab-rate">₹14 <span>/ km</span></div>
+                        <ul class="cab-details">
+                            <li>👥 4 Passengers Capacity</li>
+                            <li>🧳 2 Large Bags</li>
+                            <li>❄️ Air Conditioned</li>
+                            <li>⛽ Min 130 km/day billing</li>
+                        </ul>
+                    </div>
+                    <button class="btn-cta" style="width: 100%; font-size: 0.85rem;" onclick="selectCabAndBook('Sedan')">Select Sedan</button>
+                </div>
+
+                <div class="cab-card">
+                    <div>
+                        <div class="cab-name">SUV</div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Marazzo, Lodgy or equivalent</p>
+                        <div class="cab-rate">₹19 <span>/ km</span></div>
+                        <ul class="cab-details">
+                            <li>👥 6 Passengers Capacity</li>
+                            <li>🧳 3 Large Bags</li>
+                            <li>❄️ AC Dual Blower</li>
+                            <li>⛽ Min 130 km/day billing</li>
+                        </ul>
+                    </div>
+                    <button class="btn-cta" style="width: 100%; font-size: 0.85rem;" onclick="selectCabAndBook('SUV')">Select SUV</button>
+                </div>
+
+                <div class="cab-card">
+                    <div>
+                        <div class="cab-name">Innova / Ertiga</div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Toyota Innova, Ertiga, Triber</p>
+                        <div class="cab-rate">₹21 <span>/ km</span></div>
+                        <ul class="cab-details">
+                            <li>👥 6-7 Passengers Capacity</li>
+                            <li>🧳 4 Large Bags</li>
+                            <li>❄️ Premium AC Luxury</li>
+                            <li>⛽ Min 130 km/day billing</li>
+                        </ul>
+                    </div>
+                    <button class="btn-cta" style="width: 100%; font-size: 0.85rem;" onclick="selectCabAndBook('Innova')">Select Innova</button>
+                </div>
+
+                <div class="cab-card">
+                    <div>
+                        <div class="cab-name">Tempo Traveller</div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Force Tempo Traveller (12/14 seater)</p>
+                        <div class="cab-rate">₹30 <span>/ km</span></div>
+                        <ul class="cab-details">
+                            <li>👥 12-14 Passengers</li>
+                            <li>🧳 Large Luggage Space</li>
+                            <li>❄️ Powerful AC & Pushback</li>
+                            <li>⛽ Min 300 km/day billing</li>
+                        </ul>
+                    </div>
+                    <button class="btn-cta" style="width: 100%; font-size: 0.85rem;" onclick="selectCabAndBook('Tempo')">Select Tempo</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PAGE 2: ROUTES LISTING & DETAIL -->
+    <section id="page-routes" class="page-section">
+        <div class="container">
+            <div id="route-detail-container" style="display: none;" class="route-detail-view">
+                <!-- Dynamically populated when an individual route is selected -->
+            </div>
+
+            <div class="section-title" style="text-align: left;">
+                <h2>All Inter-City Drop Taxi Routes</h2>
+                <p>Select any route pair in Tamil Nadu or neighboring states for instant fare estimates and one-click booking.</p>
+            </div>
+
+            <div class="routes-filter-box">
+                <input type="text" id="route-search-input" placeholder="🔍 Search origin or destination (e.g. Krishnagiri, Chennai, Madurai, Ooty, Bangalore)..." oninput="filterMasterRoutes()">
+            </div>
+
+            <div id="master-routes-list">
+                <!-- Dynamically grouped by origin city -->
+            </div>
+        </div>
+    </section>
+
+    <!-- PAGE 3: BOOKING PAGE -->
+    <section id="page-booking" class="page-section">
+        <div class="container">
+            <div class="section-title" style="text-align: left; margin-bottom: 1.5rem;">
+                <h2>Book Your One-Way Drop Taxi</h2>
+                <p>Live OpenStreetMap route mapping & automatic fare calculator</p>
+            </div>
+
+            <div id="booking-confirmation-view" style="display: none;"></div>
+
+            <div id="booking-main-grid" class="booking-calculator-container">
+                <!-- Left Column: Form -->
+                <div>
+                    <form id="mainBookingForm" onsubmit="handleFinalBookingSubmit(event)">
+                        <div class="trip-type-toggle">
+                            <button type="button" class="trip-type-btn active" id="btn-oneway" onclick="setTripType('oneway')">One-Way Drop</button>
+                            <button type="button" class="trip-type-btn" id="btn-round" onclick="setTripType('round')">Round Trip</button>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Pickup Address / City *</label>
+                            <input type="text" id="book-pickup" placeholder="e.g. Pochampalli, Krishnagiri, Chennai" autocomplete="off" required oninput="debounceNominatim(this.value, 'book-pickup-sug', 'pickup')">
+                            <div id="book-pickup-sug" class="suggestions-box"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Drop Address / City *</label>
+                            <input type="text" id="book-drop" placeholder="e.g. Bangalore, Madurai, Salem" autocomplete="off" required oninput="debounceNominatim(this.value, 'book-drop-sug', 'drop')">
+                            <div id="book-drop-sug" class="suggestions-box"></div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Pickup Date *</label>
+                                <input type="date" id="book-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Pickup Time *</label>
+                                <input type="time" id="book-time" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Select Cab Type *</label>
+                            <select id="book-cab" onchange="calculateFareAndRoute()">
+                                <option value="Sedan">Sedan (₹14/km - 4 Seater)</option>
+                                <option value="SUV">SUV (₹19/km - 6 Seater)</option>
+                                <option value="Innova">Innova / Ertiga (₹21/km - 6/7 Seater)</option>
+                                <option value="Tempo">Tempo Traveller (₹30/km - 12/14 Seater)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Passenger Name *</label>
+                                <input type="text" id="book-name" placeholder="Full Name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Mobile / WhatsApp *</label>
+                                <input type="tel" id="book-phone" placeholder="10-digit number" required pattern="[0-9]{10}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email Address (Optional)</label>
+                            <input type="email" id="book-email" placeholder="for trip receipt">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Special Instructions / Notes</label>
+                            <textarea id="book-notes" rows="2" placeholder="Flight number, extra luggage, door pickup notes..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-cta" style="width: 100%; padding: 0.9rem; font-size: 1rem;">Confirm & Send Booking Request ➔</button>
+                    </form>
+                </div>
+
+                <!-- Right Column: Interactive Map -->
+                <div>
+                    <div id="map"></div>
+                    <div id="fare-calc-result" class="fare-estimate-box">
+                        <h4>Fare Summary</h4>
+                        <div class="alert-box alert-info" id="geo-status-msg" style="margin-bottom: 0.8rem;">
+                            📍 Select both Pickup and Drop locations to auto-calculate exact road distance & fare.
+                        </div>
+                        <div class="fare-breakdown-row">
+                            <span>Driving Distance:</span>
+                            <span id="summary-distance">0 km</span>
+                        </div>
+                        <div class="fare-breakdown-row">
+                            <span>Estimated Duration:</span>
+                            <span id="summary-duration">0 hrs 0 mins</span>
+                        </div>
+                        <div class="fare-breakdown-row">
+                            <span>Base Rate (<span id="summary-cab-name">Sedan</span>):</span>
+                            <span id="summary-rate">₹14 / km</span>
+                        </div>
+                        <div class="fare-breakdown-row">
+                            <span>Driver Allowance / Bata:</span>
+                            <span id="summary-bata">₹400</span>
+                        </div>
+                        <div class="fare-total-row">
+                            <span>Estimated Fare:</span>
+                            <span id="summary-total">₹0</span>
+                        </div>
+                        <p style="font-size: 0.72rem; color: #9CA3AF; margin-top: 0.8rem;">* Toll fees, parking, and state permit charges (if applicable) are extra on actuals. Min 130 km billable per day.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PAGE 4: ABOUT US -->
+    <section id="page-about" class="page-section">
+        <div class="container legal-content">
+            <div class="section-title" style="text-align: left;">
+                <h2>About MK Drop Taxi</h2>
+                <p>Tamil Nadu's trusted one-way outstation taxi service provider headquartered in Krishnagiri</p>
+            </div>
+            
+            <div style="background: var(--pure-white); padding: 2rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                <h3>Our Story</h3>
+                <p>Headquartered in Pochampalli, Krishnagiri, MK Drop Taxi was established with a singular mission: eliminating the unfair practice of charging passengers return fares for one-way journeys. We recognized that thousands of commuters traveling between Krishnagiri, Hosur, Chennai, Coimbatore, Madurai, Trichy, and Bangalore were paying double for outstation cabs. Today, MK Drop Taxi operates a network of over 500+ verified vehicles connecting all 38 districts of Tamil Nadu and neighboring states.</p>
+
+                <h3>Our Fleet & Service Coverage</h3>
+                <p>From compact Sedans for solo business trips to spacious Innovas and Tempo Travellers for family pilgrimages and vacation tours, our fleet is fully air-conditioned, regularly serviced, and thoroughly sanitized. We serve all major airports (Chennai, Bangalore, Coimbatore, Madurai, Trichy) and railway junctions 24 hours a day, 365 days a year.</p>
+
+                <h3>Years of Experience & Safety First</h3>
+                <ul>
+                    <li><strong>Verified Drivers:</strong> Every driver undergoes background checks, route orientation, and safety training.</li>
+                    <li><strong>GPS Tracking:</strong> Real-time satellite tracking on every active booking for complete peace of mind.</li>
+                    <li><strong>Transparent Billing:</strong> No hidden costs, no peak surge pricing, and no surprise waiting fees.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- PAGE 5: CONTACT US -->
+    <section id="page-contact" class="page-section">
+        <div class="container">
+            <div class="section-title" style="text-align: left;">
+                <h2>Contact Us</h2>
+                <p>We are available 24/7 to assist with your outstation taxi bookings</p>
+            </div>
+
+            <div class="contact-grid">
+                <!-- Contact Details -->
+                <div style="background: var(--pure-white); padding: 2rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <h3 style="margin-bottom: 1rem; color: var(--dark-slate);">Get in Touch</h3>
+                    <p style="margin-bottom: 1rem;"><strong>📍 Main Office:</strong><br>MK Drop Taxi Headquarters,<br>Pochampalli, Krishnagiri, Tamil Nadu - 635206</p>
+                    <p style="margin-bottom: 1rem;"><strong>📞 Direct Phone:</strong><br><a href="tel:+916379915890" style="color: var(--dark-slate); font-weight: bold; text-decoration: none;">+91 63799 15890</a></p>
+                    <p style="margin-bottom: 1rem;"><strong>💬 WhatsApp Support:</strong><br><a href="https://wa.me/916379915890" target="_blank" style="color: var(--success-green); font-weight: bold; text-decoration: none;">+91 63799 15890</a></p>
+                    <p style="margin-bottom: 1rem;"><strong>✉️ Email Address:</strong><br><a href="mailto:bookings.mkdroptaxi@gmail.com" style="color: var(--dark-slate); text-decoration: none;">bookings.mkdroptaxi@gmail.com</a></p>
+                    
+                    <a href="https://wa.me/916379915890" target="_blank" class="btn-cta" style="display: inline-block; background: var(--success-green); color: white; margin-top: 1rem;">Chat on WhatsApp Now 💬</a>
+                </div>
+
+                <!-- Contact Form -->
+                <div style="background: var(--pure-white); padding: 2rem; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <h3 style="margin-bottom: 1rem; color: var(--dark-slate);">Send Us a Message</h3>
+                    <form onsubmit="handleContactSubmit(event)">
+                        <div class="form-group">
+                            <label>Your Name *</label>
+                            <input type="text" required placeholder="Full Name">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number *</label>
+                            <input type="tel" required placeholder="10-digit Mobile Number">
+                        </div>
+                        <div class="form-group">
+                            <label>Message / Inquiry *</label>
+                            <textarea rows="4" required placeholder="How can we help you?"></textarea>
+                        </div>
+                        <button type="submit" class="btn-cta" style="width: 100%;">Submit Inquiry</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Office Embedded OpenStreetMap -->
+            <div style="margin-top: 2rem;">
+                <h3 style="margin-bottom: 0.8rem; color: var(--dark-slate);">Office Location</h3>
+                <div id="contact-map" style="height: 280px; border-radius: 8px; border: 1px solid var(--border-color);"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PAGE 6: PRIVACY POLICY -->
+    <section id="page-privacy" class="page-section">
+        <div class="container legal-content" style="background: var(--pure-white); padding: 2.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+            <h2>Privacy Policy — MK Drop Taxi</h2>
+            <p><em>Last updated: September 8, 2026</em></p>
+
+            <p>MK Drop Taxi ("we", "us", "our") operates this website and booking service. This policy explains what information we collect, how we use it, and your choices.</p>
+
+            <h3>1. Information We Collect</h3>
+            <ul>
+                <li><strong>Contact details you provide:</strong> Name, phone number, email address.</li>
+                <li><strong>Trip details:</strong> Pickup and drop locations, travel date, pickup time, cab type.</li>
+                <li><strong>Technical data:</strong> IP address, browser type, device type, pages visited.</li>
+            </ul>
+
+            <h3>2. How We Use Your Information</h3>
+            <ul>
+                <li>To confirm and manage your taxi booking.</li>
+                <li>To contact you regarding pickup details, driver assignment, and trip updates.</li>
+                <li>To calculate distance and fare using your pickup/drop locations.</li>
+                <li>To improve our website and customer service experience.</li>
+                <li>To send booking confirmations, receipts, and optional promotional offers.</li>
+            </ul>
+
+            <h3>3. Location Data</h3>
+            <p>Pickup and drop addresses you enter are sent to OpenStreetMap's Nominatim geocoding service and OSRM routing service solely to calculate distance, travel time, and display the route on a map. We do not use this data for any purpose beyond fare calculation and trip planning.</p>
+
+            <h3>4. Sharing of Information</h3>
+            <ul>
+                <li>We share only necessary trip details (pickup/drop address, scheduled time, passenger name, phone number) with the driver assigned to your trip.</li>
+                <li>We do not sell or rent your personal information to third parties.</li>
+                <li>We may disclose information if required by Indian law or court orders.</li>
+            </ul>
+
+            <h3>5. Data Retention</h3>
+            <p>Booking records are retained for up to 2 years for accounting, dispute resolution, and legal compliance, after which they are securely deleted or anonymized.</p>
+
+            <h3>6. Your Rights</h3>
+            <p>You may request access to, correction of, or deletion of your personal data by contacting us at bookings.mkdroptaxi@gmail.com or +91 63799 15890.</p>
+
+            <h3>7. Cookies</h3>
+            <p>We use cookies/local storage only to remember your recent route search for convenience. You can clear these at any time via your browser settings.</p>
+
+            <h3>8. Contact Us</h3>
+            <p>For privacy questions: bookings.mkdroptaxi@gmail.com | +91 63799 15890 | MK Drop Taxi, Pochampalli, Krishnagiri, TN - 635206.</p>
+        </div>
+    </section>
+
+    <!-- PAGE 7: TERMS & REFUND POLICY -->
+    <section id="page-terms" class="page-section">
+        <div class="container legal-content" style="background: var(--pure-white); padding: 2.5rem; border-radius: 8px; border: 1px solid var(--border-color);">
+            <h2>Terms & Conditions, Cancellation and Refund Policy — MK Drop Taxi</h2>
+            <p><em>Last updated: September 8, 2026</em></p>
+
+            <h3>1. Booking Confirmation</h3>
+            <ul>
+                <li>A booking is confirmed only after you receive a confirmation call/SMS/WhatsApp message from MK Drop Taxi with driver and vehicle details.</li>
+                <li>Fare shown on the website at the time of booking is an estimate based on OSRM calculated distance; toll fees, parking charges, interstate entry permits, and hill station charges (if applicable) are extra and charged on actuals.</li>
+            </ul>
+
+            <h3>2. Advance Payment</h3>
+            <p>An advance payment of 20% may be collected to confirm high-demand holiday or peak-season trips. The balance amount is payable directly to the driver at the end of the trip via cash or UPI.</p>
+
+            <h3>3. Cancellation by Customer</h3>
+            <ul>
+                <li><strong>Free Cancellation:</strong> Made at least 3 hours before the scheduled pickup time.</li>
+                <li><strong>Late Cancellation:</strong> Cancellations made within 3 hours of pickup, or after a driver has already dispatched to the pickup point, may attract a flat cancellation fee of ₹300 to cover driver allocation costs.</li>
+                <li><strong>No-Shows:</strong> If the customer is unreachable or not present at the pickup location within 30 minutes of the scheduled time, the booking will be treated as a no-show and any advance paid shall be non-refundable.</li>
+            </ul>
+
+            <h3>4. Cancellation by MK Drop Taxi</h3>
+            <p>In the rare event we are unable to provide a cab (vehicle breakdown, extreme weather, driver emergency), we will notify you immediately and either arrange an alternate cab or issue a 100% full refund of any advance paid.</p>
+
+            <h3>5. Refunds</h3>
+            <ul>
+                <li>Eligible refunds are processed to the original payment method / UPI within 5–7 business days.</li>
+                <li>No refund is provided once the trip has commenced, except in cases of proven service failure attributable to MK Drop Taxi.</li>
+            </ul>
+
+            <h3>6. Fare & Distance Disputes</h3>
+            <p>Distance is calculated using OpenStreetMap-based routing at the time of booking. Actual vehicle odometer distance may vary slightly due to traffic diversions or customer-requested route changes; any material difference will be settled fairly with supporting trip log data.</p>
+
+            <h3>7. Passenger Conduct & Luggage</h3>
+            <ul>
+                <li>Standard luggage allowance per cab type applies. Excess luggage requiring a larger vehicle will be charged accordingly.</li>
+                <li>Smoking, alcohol consumption, and carriage of illegal substances are strictly prohibited inside all cabs.</li>
+            </ul>
+
+            <h3>8. Limitation of Liability</h3>
+            <p>MK Drop Taxi is not liable for delays caused by heavy traffic, weather conditions, natural disasters, road closures, or other force majeure events beyond our control.</p>
+
+            <h3>9. Governing Law</h3>
+            <p>These terms are governed by the laws of India and subject to the jurisdiction of courts in Krishnagiri, Tamil Nadu.</p>
+
+            <h3>10. Complaints & Refund Requests</h3>
+            <p>Email: bookings.mkdroptaxi@gmail.com | Phone: +91 63799 15890</p>
+        </div>
+    </section>
+
+    <!-- Shared Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>MK DROP TAXI</h4>
+                <p style="font-size: 0.85rem; color: #9CA3AF; margin-bottom: 0.8rem;">Tamil Nadu's premier one-way outstation drop taxi service. Pay for one-way only with zero return charges.</p>
+                <p style="font-size: 0.85rem; color: #9CA3AF; margin-bottom: 0.8rem;">📍 Pochampalli, Krishnagiri, Tamil Nadu</p>
+                <p style="font-size: 0.85rem; color: var(--primary-yellow);">📞 24/7 Helpline: +91 63799 15890</p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a onclick="navigateTo('home')">Home</a></li>
+                    <li><a onclick="navigateTo('routes')">All Routes</a></li>
+                    <li><a onclick="navigateTo('booking')">Book Now</a></li>
+                    <li><a onclick="navigateTo('about')">About Us</a></li>
+                    <li><a onclick="navigateTo('contact')">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Top Hubs Covered</h4>
+                <ul>
+                    <li><a onclick="navigateToRoute('Krishnagiri', 'Bangalore')">Krishnagiri to Bangalore Taxi</a></li>
+                    <li><a onclick="navigateToRoute('Krishnagiri', 'Chennai')">Krishnagiri to Chennai Drop Taxi</a></li>
+                    <li><a onclick="navigateToRoute('Chennai', 'Madurai')">Chennai to Madurai Drop Taxi</a></li>
+                    <li><a onclick="navigateToRoute('Coimbatore', 'Ooty')">Coimbatore to Ooty Taxi</a></li>
+                    <li><a onclick="navigateToRoute('Trichy', 'Chennai')">Trichy to Chennai Drop Taxi</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Legal Policies</h4>
+                <ul>
+                    <li><a onclick="navigateTo('privacy')">Privacy Policy</a></li>
+                    <li><a onclick="navigateTo('terms')">Terms & Conditions</a></li>
+                    <li><a onclick="navigateTo('terms')">Cancellation & Refund Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 MK Drop Taxi. All Rights Reserved. Powered by OpenStreetMap & Leaflet.js</p>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS for Maps -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        /* ==========================================================================
+           1. CENTRALIZED ROUTES DATA (JSON ARRAY)
+           ========================================================================== */
+        const ROUTES_DATA = [
+            // Krishnagiri Hub
+            { origin: "Krishnagiri", destination: "Bangalore", distanceKm: 90, hours: 2.0 },
+            { origin: "Krishnagiri", destination: "Chennai", distanceKm: 260, hours: 4.5 },
+            { origin: "Krishnagiri", destination: "Salem", distanceKm: 110, hours: 2.0 },
+            { origin: "Krishnagiri", destination: "Coimbatore", distanceKm: 270, hours: 5.0 },
+
+            // Chennai Origin Hub
+            { origin: "Chennai", destination: "Madurai", distanceKm: 460, hours: 7.5 },
+            { origin: "Chennai", destination: "Coimbatore", distanceKm: 500, hours: 8.5 },
+            { origin: "Chennai", destination: "Trichy", distanceKm: 330, hours: 5.5 },
+            { origin: "Chennai", destination: "Salem", distanceKm: 340, hours: 5.5 },
+            { origin: "Chennai", destination: "Bangalore", distanceKm: 350, hours: 6.0 },
+            { origin: "Chennai", destination: "Puducherry", distanceKm: 150, hours: 3.0 },
+            { origin: "Chennai", destination: "Tirupati", distanceKm: 135, hours: 3.0 },
+            { origin: "Chennai", destination: "Tirunelveli", distanceKm: 620, hours: 9.5 },
+            { origin: "Chennai", destination: "Vellore", distanceKm: 140, hours: 2.5 },
+            { origin: "Chennai", destination: "Thanjavur", distanceKm: 345, hours: 6.0 },
+            { origin: "Chennai", destination: "Kumbakonam", distanceKm: 290, hours: 5.5 },
+            { origin: "Chennai", destination: "Kanyakumari", distanceKm: 700, hours: 11.0 },
+            { origin: "Chennai", destination: "Rameswaram", distanceKm: 560, hours: 9.5 },
+            { origin: "Chennai", destination: "Tiruvannamalai", distanceKm: 195, hours: 3.5 },
+
+            // Coimbatore Origin Hub
+            { origin: "Coimbatore", destination: "Ooty", distanceKm: 88, hours: 3.0 },
+            { origin: "Coimbatore", destination: "Madurai", distanceKm: 210, hours: 4.0 },
+            { origin: "Coimbatore", destination: "Chennai", distanceKm: 500, hours: 8.5 },
+            { origin: "Coimbatore", destination: "Trichy", distanceKm: 215, hours: 4.0 },
+            { origin: "Coimbatore", destination: "Salem", distanceKm: 160, hours: 3.0 },
+            { origin: "Coimbatore", destination: "Bangalore", distanceKm: 365, hours: 6.5 },
+            { origin: "Coimbatore", destination: "Kochi", distanceKm: 190, hours: 4.5 },
+            { origin: "Coimbatore", destination: "Tirunelveli", distanceKm: 320, hours: 5.5 },
+
+            // Madurai Origin Hub
+            { origin: "Madurai", destination: "Chennai", distanceKm: 460, hours: 7.5 },
+            { origin: "Madurai", destination: "Rameswaram", distanceKm: 175, hours: 3.0 },
+            { origin: "Madurai", destination: "Kanyakumari", distanceKm: 245, hours: 4.0 },
+            { origin: "Madurai", destination: "Tirunelveli", distanceKm: 160, hours: 2.5 },
+            { origin: "Madurai", destination: "Coimbatore", distanceKm: 210, hours: 4.0 },
+            { origin: "Madurai", destination: "Trichy", distanceKm: 135, hours: 2.0 },
+            { origin: "Madurai", destination: "Theni", distanceKm: 75, hours: 1.5 },
+
+            // Trichy Hub
+            { origin: "Trichy", destination: "Chennai", distanceKm: 330, hours: 5.5 },
+            { origin: "Trichy", destination: "Madurai", distanceKm: 135, hours: 2.0 },
+            { origin: "Trichy", destination: "Coimbatore", distanceKm: 215, hours: 4.0 },
+            { origin: "Trichy", destination: "Thanjavur", distanceKm: 58, hours: 1.0 },
+            { origin: "Trichy", destination: "Salem", distanceKm: 140, hours: 2.5 },
+
+            // Salem & Erode Hubs
+            { origin: "Salem", destination: "Chennai", distanceKm: 340, hours: 5.5 },
+            { origin: "Salem", destination: "Coimbatore", distanceKm: 160, hours: 3.0 },
+            { origin: "Salem", destination: "Bangalore", distanceKm: 200, hours: 3.5 },
+            { origin: "Erode", destination: "Chennai", distanceKm: 400, hours: 6.5 },
+            { origin: "Tirunelveli", destination: "Tuticorin", distanceKm: 50, hours: 1.0 },
+            { origin: "Tirunelveli", destination: "Tenkasi", distanceKm: 55, hours: 1.0 }
+        ];
+
+        // CAB RATES & CONFIG
+        const CAB_RATES = {
+            "Sedan": { ratePerKm: 14, bata: 400, minKm: 130 },
+            "SUV": { ratePerKm: 19, bata: 500, minKm: 130 },
+            "Innova": { ratePerKm: 21, bata: 500, minKm: 130 },
+            "Tempo": { ratePerKm: 30, bata: 800, minKm: 300 }
+        };
+
+        // GLOBAL APP STATE
+        let currentTripType = 'oneway';
+        let bookingMap, contactMap;
+        let pickupCoords = null;
+        let dropCoords = null;
+        let pickupMarker, dropMarker, routePolyline;
+        let calculatedDistanceKm = 0;
+        let calculatedDurationMin = 0;
+
+        /* ==========================================================================
+           2. INITIALIZATION & NAVIGATION
+           ========================================================================== */
+        window.addEventListener('DOMContentLoaded', () => {
+            renderHomePopularRoutes();
+            renderMasterRoutes(ROUTES_DATA);
+            setDefaultBookingDate();
+            initBookingMap();
+        });
+
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
+
+            const targetPage = document.getElementById(`page-${pageId}`);
+            if (targetPage) targetPage.classList.add('active');
+
+            const activeNav = document.getElementById(`nav-${pageId}`);
+            if (activeNav) activeNav.classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (pageId === 'booking') {
+                setTimeout(() => { if (bookingMap) bookingMap.invalidateSize(); }, 200);
+            } else if (pageId === 'contact') {
+                setTimeout(() => { initContactMap(); }, 200);
+            }
+        }
+
+        function setDefaultBookingDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('widget-date').value = today;
+            document.getElementById('book-date').value = today;
+            document.getElementById('book-time').value = "08:00";
+        }
+
+        /* ==========================================================================
+           3. HOME PAGE POPULAR ROUTES RENDER
+           ========================================================================== */
+        function renderHomePopularRoutes() {
+            const container = document.getElementById('home-popular-routes');
+            const popularSubset = ROUTES_DATA.slice(0, 8);
+
+            container.innerHTML = popularSubset.map(r => `
+                <div class="route-card-home" onclick="navigateToRoute('${r.origin}', '${r.destination}')">
+                    <div class="route-info">
+                        <h4>${r.origin} ➔ ${r.destination}</h4>
+                        <p>Approx. ${r.distanceKm} km | ~${r.hours} hrs</p>
+                    </div>
+                    <span style="font-weight:700; color:var(--dark-slate); font-size:0.9rem;">From ₹${r.distanceKm * CAB_RATES.Sedan.ratePerKm + CAB_RATES.Sedan.bata}</span>
+                </div>
+            `).join('');
+        }
+
+        /* ==========================================================================
+           4. ROUTES PAGE: MASTER LISTING & DYNAMIC ROUTE TEMPLATE
+           ========================================================================== */
+        function renderMasterRoutes(routesList) {
+            const container = document.getElementById('master-routes-list');
+            container.innerHTML = '';
+
+            const grouped = {};
+            routesList.forEach(r => {
+                if (!grouped[r.origin]) grouped[r.origin] = [];
+                grouped[r.origin].push(r);
+            });
+
+            for (const origin in grouped) {
+                const groupHtml = `
+                    <div class="origin-group-title">Taxi Services from ${origin}</div>
+                    <div class="origin-routes-flex">
+                        ${grouped[origin].map(r => `
+                            <div class="route-pill" onclick="navigateToRoute('${r.origin}', '${r.destination}')">
+                                <span>${r.origin} to ${r.destination}</span>
+                                <span style="font-size:0.75rem; color:var(--text-muted);">${r.distanceKm} km</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.innerHTML += groupHtml;
+            }
+        }
+
+        function filterMasterRoutes() {
+            const query = document.getElementById('route-search-input').value.toLowerCase();
+            const filtered = ROUTES_DATA.filter(r =>
+                r.origin.toLowerCase().includes(query) ||
+                r.destination.toLowerCase().includes(query)
+            );
+            renderMasterRoutes(filtered);
+        }
+
+        function navigateToRoute(origin, destination) {
+            const routeObj = ROUTES_DATA.find(r => r.origin === origin && r.destination === destination) || {
+                origin, destination, distanceKm: 250, hours: 4.5
+            };
+
+            const detailContainer = document.getElementById('route-detail-container');
+            detailContainer.style.display = 'block';
+
+            const sedanFare = routeObj.distanceKm * CAB_RATES.Sedan.ratePerKm + CAB_RATES.Sedan.bata;
+            const suvFare = routeObj.distanceKm * CAB_RATES.SUV.ratePerKm + CAB_RATES.SUV.bata;
+            const innovaFare = routeObj.distanceKm * CAB_RATES.Innova.ratePerKm + CAB_RATES.Innova.bata;
+            const tempoFare = routeObj.distanceKm * CAB_RATES.Tempo.ratePerKm + CAB_RATES.Tempo.bata;
+
+            detailContainer.innerHTML = `
+                <div class="route-detail-header">
+                    <div>
+                        <h2>${routeObj.origin} to ${routeObj.destination} Drop Taxi</h2>
+                        <p style="color:var(--text-muted);">Distance: ~${routeObj.distanceKm} km | Estimated Time: ~${routeObj.hours} hours</p>
+                    </div>
+                    <button class="btn-cta" onclick="quickBookRoutePair('${routeObj.origin}', '${routeObj.destination}')">Book This Route Now ➔</button>
+                </div>
+                <h3>Estimated One-Way Fares for ${routeObj.origin} to ${routeObj.destination}</h3>
+                <table class="route-fare-table">
+                    <thead>
+                        <tr>
+                            <th>Cab Type</th>
+                            <th>Capacity</th>
+                            <th>Per KM Rate</th>
+                            <th>Est. Total Fare (Incl. Bata)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Sedan</td><td>4 Seats</td><td>₹14 / km</td><td><strong>₹${sedanFare}</strong></td></tr>
+                        <tr><td>SUV</td><td>6 Seats</td><td>₹19 / km</td><td><strong>₹${suvFare}</strong></td></tr>
+                        <tr><td>Innova / Ertiga</td><td>6-7 Seats</td><td>₹21 / km</td><td><strong>₹${innovaFare}</strong></td></tr>
+                        <tr><td>Tempo Traveller</td><td>12-14 Seats</td><td>₹30 / km</td><td><strong>₹${tempoFare}</strong></td></tr>
+                    </tbody>
+                </table>
+            `;
+
+            navigateTo('routes');
+            detailContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function quickBookRoutePair(pickup, drop) {
+            navigateTo('booking');
+            document.getElementById('book-pickup').value = pickup;
+            document.getElementById('book-drop').value = drop;
+
+            geocodeAddress(pickup, 'pickup');
+            geocodeAddress(drop, 'drop');
+        }
+
+        function selectCabAndBook(cabType) {
+            navigateTo('booking');
+            document.getElementById('book-cab').value = cabType;
+            calculateFareAndRoute();
+        }
+
+        /* ==========================================================================
+           5. NOMINATIM GEOCODING & OSRM ROUTING (OPENSTREETMAP)
+           ========================================================================== */
+        let debounceTimers = {};
+
+        function debounceNominatim(query, suggestionBoxId, type) {
+            clearTimeout(debounceTimers[type]);
+            const box = document.getElementById(suggestionBoxId);
+
+            if (!query || query.length < 3) {
+                box.innerHTML = '';
+                return;
+            }
+
+            debounceTimers[type] = setTimeout(() => {
+                const searchUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', Tamil Nadu, India')}&countrycodes=in&limit=5`;
+
+                fetch(searchUrl, { headers: { 'User-Agent': 'MKDropTaxi-Web/1.0' } })
+                    .then(res => res.json())
+                    .then(data => {
+                        box.innerHTML = '';
+                        if (data.length === 0) {
+                            box.innerHTML = '<div class="suggestion-item">No location found in TN / India</div>';
+                            return;
+                        }
+                        data.forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'suggestion-item';
+                            div.innerText = item.display_name;
+                            div.onclick = () => {
+                                if (type === 'pickup') {
+                                    document.getElementById('book-pickup').value = item.display_name.split(',')[0];
+                                    pickupCoords = [parseFloat(item.lat), parseFloat(item.lon)];
+                                } else {
+                                    document.getElementById('book-drop').value = item.display_name.split(',')[0];
+                                    dropCoords = [parseFloat(item.lat), parseFloat(item.lon)];
+                                }
+                                box.innerHTML = '';
+                                updateMapAndRoute();
+                            };
+                            box.appendChild(div);
+                        });
+                    })
+                    .catch(() => {
+                        box.innerHTML = '<div class="suggestion-item">Geocoding service unavailable</div>';
+                    });
+            }, 600);
+        }
+
+        function geocodeAddress(addressStr, type) {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressStr + ', Tamil Nadu, India')}&countrycodes=in&limit=1`;
+            fetch(url, { headers: { 'User-Agent': 'MKDropTaxi-Web/1.0' } })
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const coords = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+                        if (type === 'pickup') pickupCoords = coords;
+                        else dropCoords = coords;
+                        updateMapAndRoute();
+                    }
+                });
+        }
+
+        function initBookingMap() {
+            // Default Center: Krishnagiri / Tamil Nadu Region
+            bookingMap = L.map('map').setView([12.5266, 78.2144], 8);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(bookingMap);
+        }
+
+        function initContactMap() {
+            if (!contactMap) {
+                // Pochampalli, Krishnagiri Coords approx (12.3385, 78.3683)
+                contactMap = L.map('contact-map').setView([12.3385, 78.3683], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(contactMap);
+                L.marker([12.3385, 78.3683]).addTo(contactMap).bindPopup('MK Drop Taxi HQ - Pochampalli, Krishnagiri').openPopup();
+            }
+        }
+
+        function updateMapAndRoute() {
+            if (pickupCoords && pickupMarker) bookingMap.removeLayer(pickupMarker);
+            if (dropCoords && dropMarker) bookingMap.removeLayer(dropMarker);
+
+            if (pickupCoords) {
+                pickupMarker = L.marker(pickupCoords).addTo(bookingMap).bindPopup('Pickup Location');
+            }
+            if (dropCoords) {
+                dropMarker = L.marker(dropCoords).addTo(bookingMap).bindPopup('Drop Location');
+            }
+
+            if (pickupCoords && dropCoords) {
+                const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupCoords[1]},${pickupCoords[0]};${dropCoords[1]},${dropCoords[0]}?overview=full&geometries=geojson`;
+
+                fetch(osrmUrl)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.routes && data.routes.length > 0) {
+                            const route = data.routes[0];
+                            calculatedDistanceKm = Math.round(route.distance / 1000);
+                            calculatedDurationMin = Math.round(route.duration / 60);
+
+                            if (routePolyline) bookingMap.removeLayer(routePolyline);
+
+                            const routeCoords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+                            routePolyline = L.polyline(routeCoords, { color: '#FFC107', weight: 5, opacity: 0.9 }).addTo(bookingMap);
+                            bookingMap.fitBounds(routePolyline.getBounds(), { padding: [40, 40] });
+
+                            document.getElementById('geo-status-msg').style.display = 'none';
+                            calculateFareAndRoute();
+                        }
+                    })
+                    .catch(() => {
+                        alert("Could not calculate exact road route. Using estimated straight-line distance.");
+                    });
+            } else if (pickupCoords) {
+                bookingMap.setView(pickupCoords, 10);
+            } else if (dropCoords) {
+                bookingMap.setView(dropCoords, 10);
+            }
+        }
+
+        /* ==========================================================================
+           6. FARE CALCULATOR & BOOKING SUBMISSION
+           ========================================================================== */
+        function setTripType(type) {
+            currentTripType = type;
+            document.getElementById('btn-oneway').classList.toggle('active', type === 'oneway');
+            document.getElementById('btn-round').classList.toggle('active', type === 'round');
+            calculateFareAndRoute();
+        }
+
+        function calculateFareAndRoute() {
+            const cabTypeKey = document.getElementById('book-cab').value;
+            const cabConfig = CAB_RATES[cabTypeKey] || CAB_RATES.Sedan;
+
+            let distance = calculatedDistanceKm > 0 ? calculatedDistanceKm : 0;
+            if (currentTripType === 'round') distance = distance * 2;
+
+            const billableKm = Math.max(distance, cabConfig.minKm);
+            const baseFare = billableKm * cabConfig.ratePerKm;
+            const driverBata = cabConfig.bata;
+            const totalEstFare = baseFare + driverBata;
+
+            const hours = Math.floor(calculatedDurationMin / 60);
+            const mins = calculatedDurationMin % 60;
+
+            document.getElementById('summary-distance').innerText = `${distance} km`;
+            document.getElementById('summary-duration').innerText = `${hours} hrs ${mins} mins`;
+            document.getElementById('summary-cab-name').innerText = cabTypeKey;
+            document.getElementById('summary-rate').innerText = `₹${cabConfig.ratePerKm} / km`;
+            document.getElementById('summary-bata').innerText = `₹${driverBata}`;
+            document.getElementById('summary-total').innerText = `₹${totalEstFare}`;
+        }
+
+        function handleQuickWidgetSubmit(e) {
+            e.preventDefault();
+            const pickup = document.getElementById('widget-pickup').value;
+            const drop = document.getElementById('widget-drop').value;
+            const date = document.getElementById('widget-date').value;
+            const cab = document.getElementById('widget-cab').value;
+
+            navigateTo('booking');
+            document.getElementById('book-pickup').value = pickup;
+            document.getElementById('book-drop').value = drop;
+            document.getElementById('book-date').value = date;
+            document.getElementById('book-cab').value = cab;
+
+            if (pickup) geocodeAddress(pickup, 'pickup');
+            if (drop) geocodeAddress(drop, 'drop');
+        }
+
+        function handleFinalBookingSubmit(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('book-name').value;
+            const phone = document.getElementById('book-phone').value;
+            const pickup = document.getElementById('book-pickup').value;
+            const drop = document.getElementById('book-drop').value;
+            const date = document.getElementById('book-date').value;
+            const time = document.getElementById('book-time').value;
+            const cab = document.getElementById('book-cab').value;
+            const fare = document.getElementById('summary-total').innerText;
+            const dist = document.getElementById('summary-distance').innerText;
+
+            document.getElementById('booking-main-grid').style.display = 'none';
+            const confirmView = document.getElementById('booking-confirmation-view');
+            confirmView.style.display = 'block';
+
+            confirmView.innerHTML = `
+                <div class="confirmation-card">
+                    <div class="confirmation-icon">✓</div>
+                    <h2 style="color:var(--dark-slate); margin-bottom: 0.5rem;">Booking Request Submitted!</h2>
+                    <p style="color:var(--text-muted); margin-bottom: 1.5rem;">Thank you, ${name}. Our dispatcher is assigning your driver right now.</p>
+                    
+                    <div style="background:var(--light-bg); padding:1.2rem; border-radius:8px; text-align:left; margin-bottom:1.5rem; font-size:0.9rem;">
+                        <p><strong>Booking Ref:</strong> MK-${Math.floor(100000 + Math.random() * 900000)}</p>
+                        <p><strong>Route:</strong> ${pickup} ➔ ${drop} (${dist})</p>
+                        <p><strong>Date & Time:</strong> ${date} at ${time}</p>
+                        <p><strong>Cab Type:</strong> ${cab}</p>
+                        <p><strong>Est. Total Fare:</strong> <span style="color:var(--yellow-hover); font-weight:bold;">${fare}</span></p>
+                    </div>
+
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom: 1.5rem;">We have opened a direct WhatsApp message to send this booking directly to our 24/7 hotline at +91 63799 15890 for instant confirmation.</p>
+                    
+                    <button class="btn-cta" onclick="resetBookingForm()">Book Another Taxi</button>
+                </div>
+            `;
+
+            const waMsg = `*New Taxi Booking Request - MK Drop Taxi*%0A%0A` +
+                          `*Name:* ${name}%0A` +
+                          `*Phone:* ${phone}%0A` +
+                          `*Pickup:* ${pickup}%0A` +
+                          `*Drop:* ${drop}%0A` +
+                          `*Date & Time:* ${date} at ${time}%0A` +
+                          `*Cab Type:* ${cab}%0A` +
+                          `*Est Distance:* ${dist}%0A` +
+                          `*Est Fare:* ${fare}`;
+
+            window.open(`https://wa.me/916379915890?text=${waMsg}`, '_blank');
+        }
+
+        function resetBookingForm() {
+            document.getElementById('booking-confirmation-view').style.display = 'none';
+            document.getElementById('booking-main-grid').style.display = 'grid';
+            document.getElementById('mainBookingForm').reset();
+            setDefaultBookingDate();
+        }
+
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            alert("Thank you for reaching out to MK Drop Taxi! Our team will contact you shortly.");
+            e.target.reset();
+        }
+    </script>
+</body>
+</html>
