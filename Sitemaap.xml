@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+    <!-- Homepage: Drop Taxi & One Way Cab Main Portal -->
+    <url>
+        <loc>https://www.mkdroptaxi.com/</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.00</priority>
+    </url>
+
+    <!-- About Us: Outstation Trips for Innova & Fleet Standards -->
+    <url>
+        <loc>https://www.mkdroptaxi.com/about</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.80</priority>
+    </url>
+
+    <!-- Services: 38 Districts Tamil Nadu & Bangalore Network -->
+    <url>
+        <loc>https://www.mkdroptaxi.com/services</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.90</priority>
+    </url>
+
+    <!-- Tariff Matrix & Routes: Chennai to Trichy, Bangalore & Long Distance Cabs -->
+    <url>
+        <loc>https://www.mkdroptaxi.com/routes</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.95</priority>
+    </url>
+
+    <!-- Quick Booking Engine & Telegram Dispatch -->
+    <url>
+        <loc>https://www.mkdroptaxi.com/booking</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>always</changefreq>
+        <priority>0.90</priority>
+    </url>
+
+    <!-- Contact & 24/7 Support Helpline -->
+    <url>
+        <loc>https://www.mkdroptaxi.com/contact</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.70</priority>
+    </url>
+
+    <!-- Dedicated SEO Landing Route: Chennai to Trichy Drop Taxi -->
+    <url>
+        <loc>https://www.mkdroptaxi.com/routes/chennai-to-trichy-drop-taxi</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Dedicated SEO Landing Route: Trichy to Chennai One Way Cab -->
+    <url>
+        <loc>https://www.mkdroptaxi.com/routes/trichy-to-chennai-one-way-cab</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+    <!-- Dedicated SEO Landing Route: Bangalore to Tamil Nadu Outstation Cabs -->
+    <url>
+        <loc>https://www.mkdroptaxi.com/routes/bangalore-to-tamil-nadu-drop-taxi</loc>
+        <lastmod>2026-09-17</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.85</priority>
+    </url>
+
+</urlset>
