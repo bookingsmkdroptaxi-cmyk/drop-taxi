@@ -1,0 +1,32 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://mkdroptaxi.com/sitemap.xml
+
+# AI / Search Crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# Block common private/system paths
+Disallow: /admin/
+Disallow: /login/
+Disallow: /private/
+Disallow: /api/
+Disallow: /cgi-bin/
+
+# Allow important SEO files
+Allow: /sitemap.xml
+Allow: /llms.txt
